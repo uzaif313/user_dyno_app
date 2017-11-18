@@ -2,6 +2,7 @@ User = {
 	elements:{
 	  btn_save:  "#btn_save",	
 	  btn_clear: "#btn_clear",
+	  btn_create: "#btn_create",
 	},
 	init:function(){
 	  context =this;
@@ -15,6 +16,19 @@ User = {
 	bindJSAction: function(){
 		$(context.elements.btn_save).on("click",this.handleSave)
 		$(context.elements.btn_clear).on("click",this.handleClear)
+		$(context.elements.btn_create).on("click",this.handleCreate)
+	},
+	handleCreate:function(e){
+		$.ajax({
+			url:"users",
+			type:"post",
+			data:{users:context.user_list},
+			dataType:"JSON"
+		}).then(function(d){
+			if(d['error']['count']){
+				$("#error_for_duplicat").html("number of duplicate record:"+d['error']['count'])
+			}
+		})
 	},
 	handleSave:function(e){
 		data = context.fetchFormatedFormData(($('form')))
@@ -50,6 +64,7 @@ User = {
 	  $.map(orignal_object, function(n, i){
         new_object[n['name']] = n['value'];
     });
+    // new_object["user[image]"] = $form.find("[type='file']").val();
     return new_object;
 	},
 

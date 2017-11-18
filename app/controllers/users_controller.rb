@@ -25,16 +25,26 @@ class UsersController < ApplicationController
   # POST /users
   # POST /users.json
   def create
-    @user = User.new(user_params)
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
-        format.json { render :show, status: :created, location: @user }
+     duplicate = []
+     params['users'].each do |user|
+      user_params=params["users"][user]["user"].permit(:name, :email, :mobile)
+      user_check = check_for_existing_user(user_params[:email],user_params[:mobile])  
+      if user_check.present?
+        duplicate << user_check
       else
-        format.html { render :new }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
+        user = User.new(user_params) 
+        user.save     
       end
-    end
+     end
+     respond_to do |format|
+       format.json {render json:{error:{duplicate:duplicate,count:duplicate.count}}}
+       format.js
+     end
+  end
+
+
+  def check_for_existing_user(email,mobile)
+    User.where(email:email,mobile:mobile)&.first
   end
 
   # PATCH/PUT /users/1
@@ -70,5 +80,9 @@ class UsersController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
       params.require(:user).permit(:name, :mobile, :email, :image)
+    end
+
+    def users_params
+      params.require(:users).permit([user:[:name,:email,:mobile]])
     end
 end
