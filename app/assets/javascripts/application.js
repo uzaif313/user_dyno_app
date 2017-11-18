@@ -15,4 +15,5 @@
 //= require turbolinks
 //= require bootstrap
 //= require lodash
-//= require_tree .
+//= require rails.validations
+//= require users
